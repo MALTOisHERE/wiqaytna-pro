@@ -1,0 +1,140 @@
+@startuml Wiqaytna_Pro_Sequence_Reminder
+!theme plain
+title Wiqaytna Pro - Automated SMS Reminder Sequence Diagram
+
+participant "Scheduler\n(Spring @Scheduled)" as Scheduler
+participant "AppointmentService" as Service
+participant "AppointmentRepository" as AppointmentRepo
+participant "UserRepository" as UserRepo
+participant "SMSService" as SMSService
+database "PostgreSQL\nDatabase" as DB
+actor Patient
+
+== Scheduled Task Execution (Every Hour) ==
+
+note over Scheduler
+  @Scheduled(cron = "0 0 * * * *")
+  Runs every hour to check
+  for upcoming appointments
+end note
+
+activate Scheduler
+Scheduler -> Service: sendUpcomingReminders()
+activate Service
+
+note right of Service
+  Business logic:
+  Send reminders for appointments
+  scheduled in next 24 hours
+  that haven't been reminded yet
+end note
+
+Service -> AppointmentRepo: findUpcomingAppointmentsWithoutReminder()
+activate AppointmentRepo
+
+AppointmentRepo -> DB: SELECT a.*, d.*, p.*, u_p.*, u_d.*\nFROM appointments a\nJOIN doctors d ON a.doctor_id = d.id\nJOIN patients p ON a.patient_id = p.id\nJOIN users u_p ON p.user_id = u_p.id\nJOIN users u_d ON d.user_id = u_d.id\nWHERE a.appointment_date = CURRENT_DATE + INTERVAL '1 day'\nAND a.reminder_sent = FALSE\nAND a.status IN ('SCHEDULED', 'CONFIRMED')
+activate DB
+
+DB --> AppointmentRepo: List of appointments needing reminders
+deactivate DB
+
+AppointmentRepo --> Service: List<Appointment> (with patient & doctor info)
+deactivate AppointmentRepo
+
+== Process Each Appointment ==
+
+loop For each appointment
+
+  Service -> Service: buildReminderMessage(appointment)
+
+  note right of Service
+    Message template:
+    "Rappel Wiqaytna Pro:
+    Rendez-vous demain {date} à {time}
+    avec Dr. {doctorName}
+    Cabinet: {address}
+    Pour annuler: {link}"
+  end note
+
+  Service -> SMSService: sendSMS(phoneNumber, message)
+  activate SMSService
+
+  alt Mock Implementation (Development)
+    SMSService -> SMSService: logToConsole(phoneNumber, message)
+    note right of SMSService
+      Console output:
+      ================================
+      [SMS MOCK] Sending to: +212661234567
+      Message: "Rappel Wiqaytna Pro:
+      Rendez-vous demain 15/01/2026 à 11:00
+      avec Dr. Bennani (Dentiste)
+      Cabinet: 15 Rue Allal Ben Abdellah, Rabat
+      Pour annuler: http://wiqaytna.ma/cancel/abc123"
+      Sent at: 2026-01-14 14:00:00
+      ================================
+    end note
+    SMSService --> Service: Success (mocked)
+
+  else Production Implementation (Future)
+    SMSService -> SMSService: Call external SMS API\n(e.g., Octopush)
+    note right of SMSService
+      POST to SMS Provider API
+      with authentication and
+      message payload
+    end note
+    SMSService --> Service: Success/Failure response
+  end
+
+  deactivate SMSService
+
+  alt SMS sent successfully
+    Service -> AppointmentRepo: updateReminderSent(appointmentId, true)
+    activate AppointmentRepo
+    AppointmentRepo -> DB: UPDATE appointments\nSET reminder_sent = TRUE,\nupdated_at = CURRENT_TIMESTAMP\nWHERE id = ?
+    activate DB
+    DB --> AppointmentRepo: Updated
+    deactivate DB
+    AppointmentRepo --> Service: Success
+    deactivate AppointmentRepo
+
+    note right of Service
+      Appointment marked as reminded
+      Won't be processed again
+    end note
+
+  else SMS sending failed
+    Service -> Service: logError(appointmentId, error)
+    note right of Service
+      Error logged for retry
+      reminder_sent remains FALSE
+      Will retry in next cycle
+    end note
+  end
+
+end
+
+Service --> Scheduler: Reminder batch completed
+deactivate Service
+
+Scheduler -> Scheduler: Schedule next execution (1 hour later)
+deactivate Scheduler
+
+== Patient Receives SMS ==
+
+note over Patient
+  Patient receives SMS
+  24 hours before appointment
+end note
+
+Patient -> Patient: Reads SMS reminder
+Patient -> Patient: Prepares for appointment
+
+alt Patient wants to cancel
+  Patient -> "Frontend\n(React)": Click cancel link in SMS
+  note right of Patient
+    Link opens cancellation page
+    in Wiqaytna Pro frontend
+  end note
+end
+
+@enduml

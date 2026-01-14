@@ -1,0 +1,101 @@
+@startuml Wiqaytna_Pro_Use_Case_Diagram
+!theme plain
+title Wiqaytna Pro - Use Case Diagram
+
+' Define actors
+:Patient: as patient
+:Doctor: as doctor
+:Medical Assistant: as assistant
+
+' System boundary
+rectangle "Wiqaytna Pro System" {
+
+  ' Authentication use cases
+  (Register Account) as register
+  (Login) as login
+  (Logout) as logout
+
+  ' Patient use cases
+  (Search Doctors) as searchDoctors
+  (View Doctor Profile) as viewDoctorProfile
+  (View Available Time Slots) as viewSlots
+  (Book Appointment) as bookAppointment
+  (View My Appointments) as viewMyAppointments
+  (Cancel Appointment) as cancelAppointment
+  (Receive SMS Reminder) as receiveReminder
+
+  ' Doctor use cases
+  (Manage Time Slots) as manageSlots
+  (View Appointments) as viewAppointments
+  (View Patient History) as viewPatientHistory
+  (Update Appointment Status) as updateStatus
+  (View Calendar) as viewCalendar
+
+  ' Assistant use cases
+  (Manage Patient Records) as managePatients
+  (Create Appointment for Patient) as createAppointment
+  (Handle Walk-in Patients) as handleWalkIn
+}
+
+' System use case
+cloud "External System" {
+  (Send SMS) as sendSMS
+}
+
+' Patient relationships
+patient --> register
+patient --> login
+patient --> logout
+patient --> searchDoctors
+patient --> viewDoctorProfile
+patient --> viewSlots
+patient --> bookAppointment
+patient --> viewMyAppointments
+patient --> cancelAppointment
+patient --> receiveReminder
+
+' Doctor relationships
+doctor --> login
+doctor --> logout
+doctor --> manageSlots
+doctor --> viewAppointments
+doctor --> viewPatientHistory
+doctor --> updateStatus
+doctor --> viewCalendar
+
+' Assistant relationships
+assistant --> login
+assistant --> logout
+assistant --> managePatients
+assistant --> createAppointment
+assistant --> handleWalkIn
+assistant --> viewAppointments
+
+' Include relationships
+bookAppointment ..> viewSlots : <<include>>
+bookAppointment ..> receiveReminder : <<include>>
+searchDoctors ..> viewDoctorProfile : <<extend>>
+
+' System interactions
+receiveReminder ..> sendSMS : <<uses>>
+
+' Notes
+note right of patient
+  Patients can search for doctors,
+  book appointments, and receive
+  automatic SMS reminders
+end note
+
+note right of doctor
+  Doctors manage their schedule,
+  view appointments, and track
+  patient medical history
+end note
+
+note right of assistant
+  Assistants help doctors by
+  managing appointments and
+  handling administrative tasks
+end note
+
+@enduml

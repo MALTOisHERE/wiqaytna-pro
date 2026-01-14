@@ -1,0 +1,132 @@
+@startuml Wiqaytna_Pro_Sequence_Booking
+!theme plain
+title Wiqaytna Pro - Patient Books Appointment Sequence Diagram
+
+actor Patient
+participant "Frontend\n(React)" as Frontend
+participant "AppointmentController" as Controller
+participant "AppointmentService" as Service
+participant "TimeSlotService" as TimeSlotService
+participant "DoctorRepository" as DoctorRepo
+participant "AppointmentRepository" as AppointmentRepo
+participant "SMSService" as SMSService
+database "PostgreSQL\nDatabase" as DB
+
+== Search for Available Doctors ==
+
+Patient -> Frontend: Search doctors by specialization
+activate Frontend
+Frontend -> Controller: GET /api/doctors?specialization=Dentiste
+activate Controller
+Controller -> Service: searchDoctors("Dentiste")
+activate Service
+Service -> DoctorRepo: findBySpecialization("Dentiste")
+activate DoctorRepo
+DoctorRepo -> DB: SELECT * FROM doctors WHERE specialization = 'Dentiste'
+activate DB
+DB --> DoctorRepo: Doctor list
+deactivate DB
+DoctorRepo --> Service: List<Doctor>
+deactivate DoctorRepo
+Service --> Controller: List<DoctorDTO>
+deactivate Service
+Controller --> Frontend: JSON response with doctors
+deactivate Controller
+Frontend --> Patient: Display doctor list
+deactivate Frontend
+
+== View Available Time Slots ==
+
+Patient -> Frontend: Select doctor and view available slots
+activate Frontend
+Frontend -> Controller: GET /api/doctors/{doctorId}/slots?date=2026-01-15
+activate Controller
+Controller -> TimeSlotService: getAvailableSlots(doctorId, date)
+activate TimeSlotService
+TimeSlotService -> DoctorRepo: findById(doctorId)
+activate DoctorRepo
+DoctorRepo -> DB: SELECT * FROM time_slots WHERE doctor_id = ?
+activate DB
+DB --> DoctorRepo: TimeSlots
+deactivate DB
+DoctorRepo --> TimeSlotService: List<TimeSlot>
+deactivate DoctorRepo
+
+TimeSlotService -> AppointmentRepo: findByDoctorIdAndDate(doctorId, date)
+activate AppointmentRepo
+AppointmentRepo -> DB: SELECT * FROM appointments WHERE doctor_id = ? AND date = ?
+activate DB
+DB --> AppointmentRepo: Existing appointments
+deactivate DB
+AppointmentRepo --> TimeSlotService: List<Appointment>
+deactivate AppointmentRepo
+
+TimeSlotService -> TimeSlotService: Filter available slots\n(exclude booked times)
+TimeSlotService --> Controller: Available TimeSlots
+deactivate TimeSlotService
+Controller --> Frontend: JSON response with available slots
+deactivate Controller
+Frontend --> Patient: Display available time slots
+deactivate Frontend
+
+== Book Appointment ==
+
+Patient -> Frontend: Select time slot and confirm booking
+activate Frontend
+Frontend -> Controller: POST /api/appointments\n{doctorId, patientId, date, time}
+activate Controller
+
+Controller -> Service: createAppointment(appointmentDTO)
+activate Service
+
+' Validate availability
+Service -> TimeSlotService: isSlotAvailable(doctorId, date, time)
+activate TimeSlotService
+TimeSlotService -> AppointmentRepo: existsByDoctorIdAndDateTime(doctorId, date, time)
+activate AppointmentRepo
+AppointmentRepo -> DB: SELECT COUNT(*) FROM appointments\nWHERE doctor_id = ? AND date = ? AND time = ?
+activate DB
+DB --> AppointmentRepo: 0 (available)
+deactivate DB
+AppointmentRepo --> TimeSlotService: false (not exists)
+deactivate AppointmentRepo
+TimeSlotService --> Service: true (available)
+deactivate TimeSlotService
+
+' Create appointment
+Service -> AppointmentRepo: save(appointment)
+activate AppointmentRepo
+AppointmentRepo -> DB: INSERT INTO appointments VALUES(...)
+activate DB
+DB --> AppointmentRepo: Saved appointment
+deactivate DB
+AppointmentRepo --> Service: Appointment
+deactivate AppointmentRepo
+
+' Send SMS reminder
+Service -> SMSService: sendConfirmationSMS(appointment)
+activate SMSService
+note right of SMSService
+  Mock implementation logs:
+  "SMS sent to +212661234567:
+  Your appointment with Dr. Bennani
+  is confirmed for 2026-01-15 at 11:00"
+end note
+SMSService --> Service: SMS sent successfully
+deactivate SMSService
+
+Service --> Controller: AppointmentDTO
+deactivate Service
+
+Controller --> Frontend: 201 Created + appointment details
+deactivate Controller
+
+Frontend --> Patient: Show booking confirmation
+deactivate Frontend
+
+== Confirmation ==
+
+Patient -> Frontend: View confirmation details
+Frontend --> Patient: Display appointment details\nand reminder information
+
+@enduml
