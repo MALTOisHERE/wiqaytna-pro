@@ -7,7 +7,7 @@
 **Academic Year**: 2025-2026
 
 **Team Members**:
-- **Name**: Fatima Zahra AIT OUAARAB
+- **Name**: Mohamed AIT OUAARAB
 - **Email**: [your-email@example.com]
 - **Role**: Full-Stack Developer
 
