@@ -67,4 +67,18 @@ public class PatientController {
         List<PatientDTO> patients = patientService.searchPatients(name);
         return ResponseEntity.ok(patients);
     }
+
+    /**
+     * Update patient profile
+     * PUT /api/patients/{id}
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updatePatient(@PathVariable Long id, @RequestBody PatientDTO patientDTO) {
+        try {
+            PatientDTO updatedPatient = patientService.updatePatient(id, patientDTO);
+            return ResponseEntity.ok(updatedPatient);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

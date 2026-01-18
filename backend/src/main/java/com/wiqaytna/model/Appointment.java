@@ -77,6 +77,9 @@ public class Appointment {
     @Column(name = "created_by")
     private Long createdBy;
 
+    @Column(name = "cancelled_by")
+    private String cancelledBy; // "PATIENT" or "DOCTOR"
+
     /**
      * Schedules the appointment
      */

@@ -8,7 +8,7 @@ export const APPOINTMENT_STATUS = {
   CONFIRMED: 'Confirmé',
   CANCELLED: 'Annulé',
   COMPLETED: 'Terminé',
-  NO_SHOW: 'Absent'
+  NO_SHOW: 'Absence patient'
 };
 
 /**

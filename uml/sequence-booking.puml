@@ -1,132 +1,171 @@
-@startuml Wiqaytna_Pro_Sequence_Booking
-!theme plain
-title Wiqaytna Pro - Patient Books Appointment Sequence Diagram
+@startuml Wiqaytna_Pro_Sequence_Colored
+' --- STYLE ET CONFIGURATION ---
+skinparam backgroundColor white
+skinparam handwritten false
+skinparam shadow true
+skinparam roundCorner 10
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 150
 
-actor Patient
-participant "Frontend\n(React)" as Frontend
-participant "AppointmentController" as Controller
-participant "AppointmentService" as Service
-participant "TimeSlotService" as TimeSlotService
-participant "DoctorRepository" as DoctorRepo
-participant "AppointmentRepository" as AppointmentRepo
-participant "SMSService" as SMSService
-database "PostgreSQL\nDatabase" as DB
+' Couleurs des flèches et activations
+skinparam sequence {
+    ArrowColor #2C3E50
+    LifeLineBorderColor #666666
+    LifeLineBackgroundColor white
+    ParticipantBorderColor #666666
+}
 
-== Search for Available Doctors ==
+title Wiqaytna Pro - Processus de Réservation (Sequence Diagram)
 
-Patient -> Frontend: Search doctors by specialization
-activate Frontend
-Frontend -> Controller: GET /api/doctors?specialization=Dentiste
-activate Controller
+' --- DÉFINITION DES ACTEURS ET PARTICIPANTS GROUPÉS ---
+
+actor "Patient" as Patient #E0E0E0
+
+box "Présentation (Client)" #F5F5F5
+    participant "Frontend\n(React)" as Frontend #E3F2FD
+end box
+
+box "Logique Métier (Backend)" #F1F8E9
+    participant "Appt\nController" as Controller #E1BEE7
+    participant "Appt\nService" as Service #C8E6C9
+    participant "TimeSlot\nService" as TimeSlotService #C8E6C9
+    participant "SMS\nService" as SMSService #C8E6C9
+end box
+
+box "Persistance (Données)" #FFFDE7
+    participant "Doctor\nRepo" as DoctorRepo #FFF9C4
+    participant "Appt\nRepo" as AppointmentRepo #FFF9C4
+    database "PostgreSQL\nDatabase" as DB #CFD8DC
+end box
+
+' --- 1. RECHERCHE DE MÉDECINS ---
+== 1. Recherche de Médecins ==
+
+Patient -> Frontend: Recherche (Spécialité: Dentiste)
+activate Frontend #E3F2FD
+
+Frontend -> Controller: GET /api/doctors
+activate Controller #E1BEE7
+
 Controller -> Service: searchDoctors("Dentiste")
-activate Service
-Service -> DoctorRepo: findBySpecialization("Dentiste")
-activate DoctorRepo
-DoctorRepo -> DB: SELECT * FROM doctors WHERE specialization = 'Dentiste'
-activate DB
-DB --> DoctorRepo: Doctor list
+activate Service #C8E6C9
+
+Service -> DoctorRepo: findBySpecialization
+activate DoctorRepo #FFF9C4
+
+DoctorRepo -> DB: SQL SELECT query
+activate DB #CFD8DC
+DB --> DoctorRepo: Liste Docteurs
 deactivate DB
+
 DoctorRepo --> Service: List<Doctor>
 deactivate DoctorRepo
+
 Service --> Controller: List<DoctorDTO>
 deactivate Service
-Controller --> Frontend: JSON response with doctors
+
+Controller --> Frontend: JSON Response
 deactivate Controller
-Frontend --> Patient: Display doctor list
+
+Frontend --> Patient: Affiche la liste
 deactivate Frontend
 
-== View Available Time Slots ==
+' --- 2. CONSULTATION DES CRÉNEAUX ---
+== 2. Consultation des Disponibilités ==
 
-Patient -> Frontend: Select doctor and view available slots
-activate Frontend
-Frontend -> Controller: GET /api/doctors/{doctorId}/slots?date=2026-01-15
-activate Controller
-Controller -> TimeSlotService: getAvailableSlots(doctorId, date)
-activate TimeSlotService
-TimeSlotService -> DoctorRepo: findById(doctorId)
-activate DoctorRepo
-DoctorRepo -> DB: SELECT * FROM time_slots WHERE doctor_id = ?
-activate DB
-DB --> DoctorRepo: TimeSlots
+Patient -> Frontend: Choisit un médecin
+activate Frontend #E3F2FD
+
+Frontend -> Controller: GET /slots (Date, DoctorID)
+activate Controller #E1BEE7
+
+Controller -> TimeSlotService: getAvailableSlots()
+activate TimeSlotService #C8E6C9
+
+' Récupération des créneaux théoriques
+TimeSlotService -> DoctorRepo: getTimeSlots()
+activate DoctorRepo #FFF9C4
+DoctorRepo -> DB: SELECT time_slots
+activate DB #CFD8DC
+DB --> DoctorRepo: Result
 deactivate DB
-DoctorRepo --> TimeSlotService: List<TimeSlot>
+DoctorRepo --> TimeSlotService: Tous les créneaux
 deactivate DoctorRepo
 
-TimeSlotService -> AppointmentRepo: findByDoctorIdAndDate(doctorId, date)
-activate AppointmentRepo
-AppointmentRepo -> DB: SELECT * FROM appointments WHERE doctor_id = ? AND date = ?
-activate DB
-DB --> AppointmentRepo: Existing appointments
+' Récupération des RDV déjà pris
+TimeSlotService -> AppointmentRepo: getExistingAppts()
+activate AppointmentRepo #FFF9C4
+AppointmentRepo -> DB: SELECT appointments
+activate DB #CFD8DC
+DB --> AppointmentRepo: Result
 deactivate DB
-AppointmentRepo --> TimeSlotService: List<Appointment>
+AppointmentRepo --> TimeSlotService: RDV existants
 deactivate AppointmentRepo
 
-TimeSlotService -> TimeSlotService: Filter available slots\n(exclude booked times)
-TimeSlotService --> Controller: Available TimeSlots
+TimeSlotService -> TimeSlotService: Filtrage (Retrait des créneaux occupés)
+
+TimeSlotService --> Controller: Créneaux Libres
 deactivate TimeSlotService
-Controller --> Frontend: JSON response with available slots
+
+Controller --> Frontend: JSON Response
 deactivate Controller
-Frontend --> Patient: Display available time slots
+
+Frontend --> Patient: Affiche les horaires
 deactivate Frontend
 
-== Book Appointment ==
+' --- 3. RÉSERVATION ---
+== 3. Confirmation du Rendez-vous ==
 
-Patient -> Frontend: Select time slot and confirm booking
-activate Frontend
-Frontend -> Controller: POST /api/appointments\n{doctorId, patientId, date, time}
-activate Controller
+Patient -> Frontend: Confirme le créneau
+activate Frontend #E3F2FD
 
-Controller -> Service: createAppointment(appointmentDTO)
-activate Service
+Frontend -> Controller: POST /appointments
+activate Controller #E1BEE7
 
-' Validate availability
-Service -> TimeSlotService: isSlotAvailable(doctorId, date, time)
-activate TimeSlotService
-TimeSlotService -> AppointmentRepo: existsByDoctorIdAndDateTime(doctorId, date, time)
-activate AppointmentRepo
-AppointmentRepo -> DB: SELECT COUNT(*) FROM appointments\nWHERE doctor_id = ? AND date = ? AND time = ?
-activate DB
-DB --> AppointmentRepo: 0 (available)
+Controller -> Service: createAppointment()
+activate Service #C8E6C9
+
+' Double validation
+Service -> TimeSlotService: isSlotAvailable?
+activate TimeSlotService #C8E6C9
+TimeSlotService -> AppointmentRepo: countExisting()
+activate AppointmentRepo #FFF9C4
+AppointmentRepo -> DB: SELECT COUNT
+activate DB #CFD8DC
+DB --> AppointmentRepo: 0 (Libre)
 deactivate DB
-AppointmentRepo --> TimeSlotService: false (not exists)
+AppointmentRepo --> TimeSlotService: False (Pas pris)
 deactivate AppointmentRepo
-TimeSlotService --> Service: true (available)
+TimeSlotService --> Service: True (Dispo)
 deactivate TimeSlotService
 
-' Create appointment
-Service -> AppointmentRepo: save(appointment)
-activate AppointmentRepo
-AppointmentRepo -> DB: INSERT INTO appointments VALUES(...)
-activate DB
-DB --> AppointmentRepo: Saved appointment
+' Sauvegarde
+Service -> AppointmentRepo: save(Appointment)
+activate AppointmentRepo #FFF9C4
+AppointmentRepo -> DB: INSERT INTO appointments
+activate DB #CFD8DC
+DB --> AppointmentRepo: OK
 deactivate DB
-AppointmentRepo --> Service: Appointment
+AppointmentRepo --> Service: Appointment Created
 deactivate AppointmentRepo
 
-' Send SMS reminder
-Service -> SMSService: sendConfirmationSMS(appointment)
-activate SMSService
+' Notification
+Service -> SMSService: sendConfirmation()
+activate SMSService #C8E6C9
 note right of SMSService
-  Mock implementation logs:
-  "SMS sent to +212661234567:
-  Your appointment with Dr. Bennani
-  is confirmed for 2026-01-15 at 11:00"
+  Envoi SMS au +212...
+  "RDV confirmé le 15/01 à 11h"
 end note
-SMSService --> Service: SMS sent successfully
+SMSService --> Service: OK
 deactivate SMSService
 
-Service --> Controller: AppointmentDTO
+Service --> Controller: DTO (Succès)
 deactivate Service
 
-Controller --> Frontend: 201 Created + appointment details
+Controller --> Frontend: 201 Created
 deactivate Controller
 
-Frontend --> Patient: Show booking confirmation
+Frontend --> Patient: Affiche confirmation
 deactivate Frontend
-
-== Confirmation ==
-
-Patient -> Frontend: View confirmation details
-Frontend --> Patient: Display appointment details\nand reminder information
 
 @enduml

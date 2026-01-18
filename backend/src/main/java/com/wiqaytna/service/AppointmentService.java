@@ -2,6 +2,8 @@ package com.wiqaytna.service;
 
 import com.wiqaytna.dto.AppointmentDTO;
 import com.wiqaytna.dto.CreateAppointmentRequest;
+import com.wiqaytna.exception.BusinessLogicException;
+import com.wiqaytna.exception.ResourceNotFoundException;
 import com.wiqaytna.model.Appointment;
 import com.wiqaytna.model.AppointmentStatus;
 import com.wiqaytna.repository.AppointmentRepository;
@@ -43,7 +45,7 @@ public class AppointmentService {
         );
 
         if (slotTaken) {
-            throw new RuntimeException("This time slot is already booked");
+            throw new BusinessLogicException("This time slot is already booked");        
         }
 
         // Resolve patient ID - if the patientId is actually a userId, look it up
@@ -51,7 +53,7 @@ public class AppointmentService {
         try {
             // Try to get patient by user ID first (in case frontend sends user_id)
             actualPatientId = patientService.getPatientByUserId(request.getPatientId()).getId();
-        } catch (RuntimeException e) {
+        } catch (ResourceNotFoundException e) {            
             // If that fails, assume it's already a patient ID
             // Verify patient exists
             patientService.getPatientById(request.getPatientId());
@@ -80,7 +82,7 @@ public class AppointmentService {
      */
     public AppointmentDTO getAppointmentById(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", id));
         return mapToDTO(appointment);
     }
 
@@ -134,8 +136,7 @@ public class AppointmentService {
      */
     public AppointmentDTO updateAppointmentStatus(Long id, AppointmentStatus status) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Appointment not found"));
-
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", id));
         appointment.setStatus(status);
         Appointment updated = appointmentRepository.save(appointment);
         return mapToDTO(updated);
@@ -144,15 +145,16 @@ public class AppointmentService {
     /**
      * Cancel appointment
      */
-    public AppointmentDTO cancelAppointment(Long id) {
+    public AppointmentDTO cancelAppointment(Long id, String cancelledBy) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", id));
 
         if (!appointment.isCancellable()) {
-            throw new RuntimeException("This appointment cannot be cancelled");
-        }
+            throw new BusinessLogicException("This appointment cannot be cancelled");
+            }
 
         appointment.cancel();
+        appointment.setCancelledBy(cancelledBy); // Store who cancelled
         Appointment updated = appointmentRepository.save(appointment);
 
         // Send cancellation SMS
@@ -198,6 +200,7 @@ public class AppointmentService {
         dto.setStatus(appointment.getStatus());
         dto.setNotes(appointment.getNotes());
         dto.setReminderSent(appointment.getReminderSent());
+        dto.setCancelledBy(appointment.getCancelledBy());
 
         // Add doctor and patient details if loaded
         if (appointment.getDoctor() != null && appointment.getDoctor().getUser() != null) {
@@ -208,6 +211,9 @@ public class AppointmentService {
         if (appointment.getPatient() != null && appointment.getPatient().getUser() != null) {
             dto.setPatientName(appointment.getPatient().getUser().getFullName());
             dto.setPatientPhone(appointment.getPatient().getUser().getPhone());
+            dto.setPatientBloodGroup(appointment.getPatient().getBloodGroup());
+            dto.setPatientAllergies(appointment.getPatient().getAllergies());
+            dto.setPatientMedicalHistory(appointment.getPatient().getMedicalHistory());
         }
 
         return dto;

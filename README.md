@@ -3,13 +3,14 @@
 ## Team Information
 
 **Project**: Wiqaytna Pro - Gestion des Rendez-vous Médicaux
-**Institution**: [Your University/Institution]
+**Institution**: INPT
 **Academic Year**: 2025-2026
 
 **Team Members**:
-- **Name**: Mohamed AIT OUAARAB
-- **Email**: [your-email@example.com]
-- **Role**: Full-Stack Developer
+- **Name**: Aitouaarab Fatimazahra 
+            Sajiaa Hafssa
+            Chablou Amina
+
 
 ---
 
@@ -26,10 +27,9 @@
 9. [API Documentation](#api-documentation)
 10. [Database Schema](#database-schema)
 11. [UML Diagrams](#uml-diagrams)
-12. [Git Workflow](#git-workflow)
-13. [Testing](#testing)
-14. [Best Practices Applied](#best-practices-applied)
-15. [Future Enhancements](#future-enhancements)
+12. [Testing](#testing)
+13. [Best Practices Applied](#best-practices-applied)
+14. [Future Enhancements](#future-enhancements)
 
 ---
 
@@ -70,11 +70,6 @@ Wiqaytna Pro provides:
 - View upcoming appointments
 - Receive SMS reminders (mocked)
 - Cancel appointments
-
-### Assistant Features
-- Manage appointments on behalf of doctors
-- Handle patient records
-- Administrative support
 
 ### System Features
 - JWT-based authentication
@@ -233,7 +228,7 @@ Before you begin, ensure you have the following installed:
 
 ```bash
 git clone <repository-url>
-cd wiqaytna_pro
+  
 ```
 
 ### Step 2: Environment Variables Setup
@@ -494,191 +489,7 @@ All UML diagrams are created with PlantUML and located in the `uml/` directory:
 3. **Sequence Diagram - Booking** (`sequence-booking.puml`): Patient booking flow
 4. **Sequence Diagram - Reminder** (`sequence-reminder.puml`): SMS reminder process
 
-To view diagrams, use PlantUML or online viewers like: http://www.plantuml.com/plantuml/
-
----
-
-## Git Workflow
-
-### Recommended Commit Sequence
-
-This project follows a structured commit history. Here's the recommended sequence:
-
-```bash
-# 1. Initial Setup
-git add .gitignore
-git commit -m "chore: Add .gitignore file"
-
-# 2. Database
-git add database/
-git commit -m "feat: Add database schema and sample data
-
-- Created normalized PostgreSQL schema (3NF)
-- Added sample data with Moroccan context
-- Implemented proper constraints and indexes"
-
-# 3. UML Diagrams
-git add uml/use-case.puml
-git commit -m "docs: Add use case diagram"
-
-git add uml/class-diagram.puml
-git commit -m "docs: Add class diagram with all entities"
-
-git add uml/sequence-*.puml
-git commit -m "docs: Add sequence diagrams for booking and reminders"
-
-# 4. Backend - Initial Setup
-git add backend/pom.xml backend/src/main/resources/application.properties
-git commit -m "feat: Initialize Spring Boot backend with Maven
-
-- Added all required dependencies
-- Configured PostgreSQL connection
-- Set up JWT authentication"
-
-# 5. Backend - Models
-git add backend/src/main/java/com/wiqaytna/model/
-git commit -m "feat: Add entity models with JPA annotations
-
-- Created User, Doctor, Patient, Appointment, TimeSlot entities
-- Applied proper validation and relationships
-- Followed SOLID principles"
-
-# 6. Backend - Repositories
-git add backend/src/main/java/com/wiqaytna/repository/
-git commit -m "feat: Add repository layer with custom queries
-
-- Implemented JPA repositories for all entities
-- Added custom query methods for business logic"
-
-# 7. Backend - Security
-git add backend/src/main/java/com/wiqaytna/security/
-git add backend/src/main/java/com/wiqaytna/config/
-git commit -m "feat: Implement JWT authentication and security
-
-- Created JWT utility class
-- Added authentication filter
-- Configured Spring Security"
-
-# 8. Backend - DTOs
-git add backend/src/main/java/com/wiqaytna/dto/
-git commit -m "feat: Add Data Transfer Objects
-
-- Created DTOs for API requests/responses
-- Separated internal entities from API contract"
-
-# 9. Backend - Services
-git add backend/src/main/java/com/wiqaytna/service/
-git commit -m "feat: Implement service layer with business logic
-
-- Created UserService, DoctorService, PatientService
-- Implemented AppointmentService with booking logic
-- Added SMSService with mock implementation"
-
-# 10. Backend - Controllers
-git add backend/src/main/java/com/wiqaytna/controller/
-git commit -m "feat: Add REST controllers
-
-- Created AuthController for authentication
-- Implemented CRUD controllers for all entities
-- Applied proper HTTP status codes and error handling"
-
-# 11. Backend - Exception Handling
-git add backend/src/main/java/com/wiqaytna/exception/
-git commit -m "feat: Add global exception handling
-
-- Created GlobalExceptionHandler
-- Implemented consistent error responses"
-
-# 12. Frontend - Initial Setup
-git add frontend/package.json frontend/vite.config.js frontend/index.html
-git commit -m "feat: Initialize React frontend with Vite
-
-- Set up Vite build tool
-- Added required dependencies
-- Configured proxy for backend API"
-
-# 13. Frontend - API Services
-git add frontend/src/services/
-git commit -m "feat: Implement API services
-
-- Created Axios configuration with JWT interceptors
-- Implemented auth, appointment, and doctor services"
-
-# 14. Frontend - Context
-git add frontend/src/context/
-git commit -m "feat: Add authentication context
-
-- Created AuthContext for global state
-- Implemented authentication methods"
-
-# 15. Frontend - Auth Pages
-git add frontend/src/pages/LoginPage.jsx frontend/src/pages/RegisterPage.jsx
-git commit -m "feat: Add authentication pages
-
-- Created login and registration forms
-- Implemented form validation"
-
-# 16. Frontend - Dashboards
-git add frontend/src/pages/DoctorDashboard.jsx
-git commit -m "feat: Implement doctor dashboard
-
-- Added appointment management
-- Implemented status updates
-- Created calendar view"
-
-git add frontend/src/pages/PatientDashboard.jsx
-git commit -m "feat: Implement patient dashboard
-
-- Added doctor search functionality
-- Implemented appointment booking
-- Created appointment list view"
-
-# 17. Frontend - Components
-git add frontend/src/components/
-git commit -m "feat: Add reusable components
-
-- Created PrivateRoute for route protection
-- Implemented component composition"
-
-# 18. Frontend - Styling
-git add frontend/src/styles/
-git commit -m "style: Add responsive CSS styling
-
-- Created modern, clean design
-- Implemented responsive layout
-- Added professional color scheme"
-
-# 19. Documentation
-git add docs/
-git commit -m "docs: Add database design documentation
-
-- Documented database schema
-- Explained normalization approach
-- Added ER diagrams and rationale"
-
-git add README.md
-git commit -m "docs: Add comprehensive README
-
-- Added setup instructions
-- Documented API endpoints
-- Included architecture overview"
-
-# 20. Final
-git commit -m "chore: Final code review and cleanup"
-```
-
-### Commit Message Convention
-
-Format: `<type>: <description>`
-
-Types:
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation
-- `style`: Code style/formatting
-- `refactor`: Code refactoring
-- `test`: Tests
-- `chore`: Build/tooling
+To view diagrams, there are in the report of project that is posted on moodle .
 
 ---
 
@@ -834,71 +645,3 @@ Before deploying to production:
 9. Advanced scheduling (recurring appointments)
 10. Analytics dashboard for doctors
 
-### Technical Improvements
-1. Unit test coverage increase
-2. Integration tests
-3. Docker containerization
-4. CI/CD pipeline
-5. API documentation (Swagger/OpenAPI)
-6. Logging and monitoring
-7. Caching layer (Redis)
-8. Load balancing
-9. Database migration tools (Flyway/Liquibase)
-
----
-
-## Troubleshooting
-
-### Common Issues
-
-**Backend won't start**:
-- Check PostgreSQL is running
-- Verify database credentials in `backend/.env`
-- Ensure Java 17 is installed
-- Run `mvn clean install` to rebuild
-- Check if `.env` file exists in `backend/` directory
-
-**Frontend won't start**:
-- Delete `node_modules` and run `npm install` again
-- Check Node.js version (requires 18+)
-- Verify backend is running on port 8080
-- Restart dev server after changing `.env`
-
-**Database connection failed**:
-- Verify PostgreSQL service is running
-- Check database exists: `psql -U postgres -l`
-- Verify credentials in `backend/.env`
-- Ensure `DB_PORT` matches your PostgreSQL port (default: 5432, custom: 5433)
-
-**CORS errors**:
-- Ensure frontend runs on port 3000 or 5173
-- Check `CORS_ALLOWED_ORIGINS` in `backend/.env`
-- Verify `VITE_API_BASE_URL` in `frontend/.env`
-- Restart backend after changing CORS settings
-
-**Environment variables not working**:
-- **Backend**: Ensure `.env` file is in `backend/` directory (not root)
-- **Frontend**: Variables must start with `VITE_` prefix
-- **Frontend**: Restart dev server (`npm run dev`) after changes
-- Check for typos in variable names
-- Verify syntax: `KEY=value` (no spaces around `=`)
-- Run `mvn clean install` for backend after `.env` changes
-
----
-
-## License
-
-This project is for educational purposes as part of academic coursework.
-
----
-
-## Contact
-
-For questions or support, contact:
-- **Email**: [your-email@example.com]
-- **GitHub**: [your-github-username]
-
----
-
-**Generated with Claude Code**
-Last Updated: January 2026

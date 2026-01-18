@@ -68,8 +68,10 @@ const appointmentService = {
   /**
    * Cancel appointment
    */
-  cancelAppointment: async (appointmentId) => {
-    const response = await api.delete(`/appointments/${appointmentId}`);
+  cancelAppointment: async (appointmentId, cancelledBy = 'PATIENT') => {
+    const response = await api.delete(`/appointments/${appointmentId}`, {
+      params: { cancelledBy },
+    });
     return response.data;
   },
 };

@@ -124,12 +124,14 @@ public class AppointmentController {
 
     /**
      * Cancel appointment
-     * DELETE /api/appointments/{id}
+     * DELETE /api/appointments/{id}?cancelledBy=PATIENT
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> cancelAppointment(@PathVariable Long id) {
+    public ResponseEntity<?> cancelAppointment(
+            @PathVariable Long id,
+            @RequestParam(required = false, defaultValue = "PATIENT") String cancelledBy) {
         try {
-            AppointmentDTO appointment = appointmentService.cancelAppointment(id);
+            AppointmentDTO appointment = appointmentService.cancelAppointment(id, cancelledBy);
             return ResponseEntity.ok(appointment);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

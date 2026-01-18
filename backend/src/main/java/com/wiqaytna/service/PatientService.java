@@ -1,6 +1,7 @@
 package com.wiqaytna.service;
 
 import com.wiqaytna.dto.PatientDTO;
+import com.wiqaytna.exception.ResourceNotFoundException;
 import com.wiqaytna.model.Patient;
 import com.wiqaytna.model.User;
 import com.wiqaytna.repository.PatientRepository;
@@ -36,7 +37,7 @@ public class PatientService {
      */
     public PatientDTO getPatientById(Long id) {
         Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Patient not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Patient", "id", id));
         return mapToDTO(patient);
     }
 
@@ -45,7 +46,7 @@ public class PatientService {
      */
     public PatientDTO getPatientByUserId(Long userId) {
         Patient patient = patientRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Patient not found for user"));
+                .orElseThrow(() -> new ResourceNotFoundException("Patient", "userId", userId));
         return mapToDTO(patient);
     }
 
@@ -64,6 +65,31 @@ public class PatientService {
         return patientRepository.searchByName(name).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Update patient profile
+     */
+    public PatientDTO updatePatient(Long id, PatientDTO patientDTO) {
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient", "id", id));
+
+        // Update patient fields
+        if (patientDTO.getDateOfBirth() != null) {
+            patient.setDateOfBirth(patientDTO.getDateOfBirth());
+        }
+        if (patientDTO.getMedicalHistory() != null) {
+            patient.setMedicalHistory(patientDTO.getMedicalHistory());
+        }
+        if (patientDTO.getBloodGroup() != null) {
+            patient.setBloodGroup(patientDTO.getBloodGroup());
+        }
+        if (patientDTO.getAllergies() != null) {
+            patient.setAllergies(patientDTO.getAllergies());
+        }
+
+        Patient updatedPatient = patientRepository.save(patient);
+        return mapToDTO(updatedPatient);
     }
 
     /**

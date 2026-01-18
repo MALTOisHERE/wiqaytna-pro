@@ -1,19 +1,22 @@
 /* Wiqaytna Pro - Main Stylesheet */
 
 :root {
-  --primary-color: #2563eb;
+  --primary-color: #0ea5e9;
+  --primary-dark: #0284c7;
   --secondary-color: #64748b;
   --success-color: #10b981;
   --danger-color: #ef4444;
   --warning-color: #f59e0b;
   --info-color: #3b82f6;
-  --background: #f5f7fa;
+  --background: #f8fafc;
   --card-background: #ffffff;
   --text-primary: #1e293b;
   --text-secondary: #64748b;
   --border-color: #e2e8f0;
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --medical-accent: #06b6d4;
+  --medical-light: #e0f2fe;
 }
 
 * {
@@ -99,7 +102,8 @@ body {
 .btn-secondary,
 .btn-success,
 .btn-danger,
-.btn-info {
+.btn-info,
+.btn-warning {
   padding: 12px 24px;
   border: none;
   border-radius: 8px;
@@ -133,14 +137,35 @@ body {
   color: white;
 }
 
+.btn-success:hover {
+  background-color: #059669;
+}
+
 .btn-danger {
   background-color: var(--danger-color);
   color: white;
 }
 
+.btn-danger:hover {
+  background-color: #dc2626;
+}
+
 .btn-info {
   background-color: var(--info-color);
   color: white;
+}
+
+.btn-info:hover {
+  background-color: #2563eb;
+}
+
+.btn-warning {
+  background-color: var(--warning-color);
+  color: white;
+}
+
+.btn-warning:hover {
+  background-color: #d97706;
 }
 
 /* Messages */
@@ -278,27 +303,39 @@ body {
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .status-scheduled {
   background-color: #dbeafe;
   color: #1e40af;
+  border: 1px solid #93c5fd;
 }
 
 .status-confirmed {
   background-color: #d1fae5;
   color: #065f46;
+  border: 1px solid #6ee7b7;
 }
 
 .status-cancelled {
   background-color: #fee2e2;
   color: #991b1b;
+  border: 1px solid #fecaca;
 }
 
 .status-completed {
   background-color: #e0e7ff;
   color: #3730a3;
+  border: 1px solid #c7d2fe;
+}
+
+.status-no_show {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
 }
 
 .appointment-actions {
@@ -419,6 +456,621 @@ body {
   color: var(--text-secondary);
 }
 
+/* Kanban Board */
+.kanban-board {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 20px;
+  min-height: 500px;
+}
+
+.kanban-column {
+  flex: 1;
+  min-width: 280px;
+  background: var(--card-background);
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: var(--shadow);
+}
+
+.kanban-column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.kanban-column-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.kanban-column-count {
+  background: var(--background);
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.kanban-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 100px;
+}
+
+.kanban-card {
+  background: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.kanban-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.kanban-card-time {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+}
+
+.kanban-card-patient {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.kanban-card-phone {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.kanban-card-info {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  background-color: #f0f9ff;
+  border-radius: 4px;
+}
+
+.kanban-card-info.alert {
+  background-color: #fef3c7;
+  color: #92400e;
+  border-left: 3px solid #f59e0b;
+}
+
+.kanban-card-notes {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  margin-bottom: 8px;
+  font-style: italic;
+  display: flex;
+  align-items: flex-start;
+}
+
+.alert-info {
+  background-color: #fef3c7;
+  padding: 8px;
+  border-radius: 6px;
+  border-left: 3px solid #f59e0b;
+  display: flex;
+  align-items: center;
+}
+
+.kanban-card-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.kanban-card-actions button {
+  padding: 5px 10px;
+  font-size: 11px;
+  flex: 1;
+  min-width: fit-content;
+}
+
+.kanban-empty {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 40px 20px;
+  font-size: 14px;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.view-toggle button {
+  flex: 1;
+  max-width: 200px;
+}
+
+.view-toggle button.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* Column-specific colors */
+.kanban-column.scheduled .kanban-column-header {
+  border-bottom-color: #3b82f6;
+}
+
+.kanban-column.confirmed .kanban-column-header {
+  border-bottom-color: #10b981;
+}
+
+.kanban-column.completed .kanban-column-header {
+  border-bottom-color: #6366f1;
+}
+
+.kanban-column.cancelled .kanban-column-header {
+  border-bottom-color: #ef4444;
+}
+
+.kanban-column.no_show .kanban-column-header {
+  border-bottom-color: #f59e0b;
+}
+
+/* Grouped Appointments List with Collapse */
+.appointments-list-grouped {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.status-group {
+  background: var(--card-background);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.status-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: var(--background);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.status-group-header:hover {
+  background-color: #e2e8f0;
+}
+
+.status-group-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-group-count {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.collapse-icon {
+  font-size: 14px;
+  color: var(--text-secondary);
+  transition: transform 0.3s;
+}
+
+.status-group-content {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.status-group-content .appointment-card {
+  margin: 0;
+}
+
+.empty-status-group {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Landing Page Styles */
+.landing-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Landing Header */
+.landing-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 20px 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.landing-header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--primary-color);
+}
+
+.logo-icon {
+  color: var(--medical-accent);
+}
+
+.logo h1, .logo h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary-color), var(--medical-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.landing-nav {
+  display: flex;
+  gap: 15px;
+}
+
+.landing-nav button {
+  width: auto;
+  padding: 10px 24px;
+}
+
+/* Hero Section */
+.hero-section {
+  padding: 80px 0;
+  background: linear-gradient(135deg, #e0f2fe 0%, #f8fafc 50%, #e0f2fe 100%);
+}
+
+.hero-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+
+.hero-title {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+}
+
+.hero-title .highlight {
+  background: linear-gradient(135deg, var(--primary-color), var(--medical-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-description {
+  font-size: 18px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 32px;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 16px;
+}
+
+.btn-large {
+  padding: 16px 32px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.hero-card {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.hero-card-icon {
+  color: var(--medical-accent);
+  margin-bottom: 20px;
+}
+
+.hero-card h3 {
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  font-size: 22px;
+}
+
+.hero-card p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Stats Section */
+.stats-section {
+  padding: 60px 0;
+  background: white;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px;
+}
+
+.stat-card {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 48px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary-color), var(--medical-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Features Section */
+.features-section {
+  padding: 80px 0;
+  background: var(--background);
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.section-header h2 {
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.section-header p {
+  font-size: 18px;
+  color: var(--text-secondary);
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+
+.feature-card {
+  background: white;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  transition: all 0.3s;
+  border: 2px solid transparent;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border-color: var(--medical-light);
+}
+
+.feature-icon {
+  color: var(--medical-accent);
+  margin-bottom: 20px;
+}
+
+.feature-card h3 {
+  font-size: 20px;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.feature-card p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Benefits Section */
+.benefits-section {
+  padding: 80px 0;
+  background: white;
+}
+
+.benefits-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+
+.benefits-text h2 {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 32px;
+}
+
+.benefits-list {
+  list-style: none;
+  padding: 0;
+}
+
+.benefits-list li {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.check-icon {
+  color: var(--success-color);
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.benefit-highlight {
+  background: linear-gradient(135deg, var(--medical-light), white);
+  padding: 48px;
+  border-radius: 20px;
+  text-align: center;
+  border: 2px solid var(--medical-accent);
+}
+
+.benefit-icon {
+  color: var(--medical-accent);
+  margin-bottom: 24px;
+}
+
+.benefit-highlight h3 {
+  font-size: 24px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* CTA Section */
+.cta-section {
+  padding: 80px 0;
+  background: linear-gradient(135deg, var(--primary-color), var(--medical-accent));
+  color: white;
+}
+
+.cta-content {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.cta-content h2 {
+  font-size: 42px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.cta-content p {
+  font-size: 18px;
+  margin-bottom: 32px;
+  opacity: 0.95;
+}
+
+.cta-content .btn-primary {
+  background: white;
+  color: var(--primary-color);
+}
+
+.cta-content .btn-primary:hover {
+  background: var(--background);
+}
+
+/* Footer */
+.landing-footer {
+  background: var(--text-primary);
+  color: white;
+  padding: 60px 0 20px;
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 60px;
+  margin-bottom: 40px;
+}
+
+.footer-brand p {
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 12px;
+}
+
+.footer-links {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+
+.footer-column h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.footer-column a {
+  display: block;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  margin-bottom: 12px;
+  transition: color 0.3s;
+}
+
+.footer-column a:hover {
+  color: white;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 20px;
+  text-align: center;
+}
+
+.footer-bottom p {
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .dashboard-header {
@@ -441,5 +1093,68 @@ body {
 
   .appointment-actions {
     flex-direction: column;
+  }
+
+  .kanban-board {
+    flex-direction: column;
+  }
+
+  .kanban-column {
+    min-width: 100%;
+  }
+
+  .status-group-header {
+    padding: 12px 15px;
+  }
+
+  .status-group-content {
+    padding: 10px;
+  }
+
+  /* Landing Page Responsive */
+  .hero-content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .hero-title {
+    font-size: 36px;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .benefits-content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .footer-links {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .section-header h2 {
+    font-size: 32px;
+  }
+
+  .cta-content h2 {
+    font-size: 32px;
   }
 }

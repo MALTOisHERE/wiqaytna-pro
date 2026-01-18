@@ -1,101 +1,104 @@
-@startuml Wiqaytna_Pro_Use_Case_Diagram
-!theme plain
-title Wiqaytna Pro - Use Case Diagram
+@startuml Wiqaytna_Pro_UseCase_Colored
+' --- CONFIGURATION DU STYLE ---
+skinparam backgroundColor white
+skinparam handwritten false
+skinparam shadow true
+skinparam roundCorner 10
 
-' Define actors
-:Patient: as patient
-:Doctor: as doctor
-:Medical Assistant: as assistant
+' Couleurs des Acteurs
+skinparam actor {
+    BackgroundColor #E3F2FD
+    BorderColor #2C3E50
+    FontName Arial
+}
 
-' System boundary
+' Couleurs des Cas d'Utilisation (Usecases)
+skinparam usecase {
+    BackgroundColor white
+    BorderColor #2C3E50
+    ArrowColor #2C3E50
+}
+
+skinparam package {
+    BackgroundColor #F9F9F9
+    BorderColor #DDDDDD
+    FontColor #666666
+}
+
+title Wiqaytna Pro - Use Case Diagram (Structured)
+
+' --- ACTEURS ---
+actor :Patient: as patient #BBDEFB
+actor :Doctor: as doctor #C8E6C9
+actor :Assistant: as assistant #FFF9C4
+
+' --- SYSTEME ---
 rectangle "Wiqaytna Pro System" {
 
-  ' Authentication use cases
-  (Register Account) as register
-  (Login) as login
-  (Logout) as logout
+    ' Groupe 1: Accès (Violet)
+    package "1. Authentification & Sécurité" {
+        usecase "Register Account" as register #E1BEE7
+        usecase "Login" as login #E1BEE7
+        usecase "Logout" as logout #E1BEE7
+    }
 
-  ' Patient use cases
-  (Search Doctors) as searchDoctors
-  (View Doctor Profile) as viewDoctorProfile
-  (View Available Time Slots) as viewSlots
-  (Book Appointment) as bookAppointment
-  (View My Appointments) as viewMyAppointments
-  (Cancel Appointment) as cancelAppointment
-  (Receive SMS Reminder) as receiveReminder
+    ' Groupe 2: Actions Patient (Bleu)
+    package "2. Espace Patient" {
+        usecase "Search Doctors" as searchDoctors #BBDEFB
+        usecase "View Doctor Profile" as viewDoctorProfile #BBDEFB
+        usecase "View Available Slots" as viewSlots #BBDEFB
+        usecase "Book Appointment" as bookAppointment #BBDEFB
+        usecase "View My Appointments" as viewMyAppointments #BBDEFB
+        usecase "Cancel Appointment" as cancelAppointment #BBDEFB
+        usecase "Receive SMS Reminder" as receiveReminder #BBDEFB
+    }
 
-  ' Doctor use cases
-  (Manage Time Slots) as manageSlots
-  (View Appointments) as viewAppointments
-  (View Patient History) as viewPatientHistory
-  (Update Appointment Status) as updateStatus
-  (View Calendar) as viewCalendar
-
-  ' Assistant use cases
-  (Manage Patient Records) as managePatients
-  (Create Appointment for Patient) as createAppointment
-  (Handle Walk-in Patients) as handleWalkIn
+    ' Groupe 3: Actions Médicales (Vert)
+    package "3. Gestion Médicale (Docteur/Assistant)" {
+        usecase "Manage Time Slots" as manageSlots #C8E6C9
+        usecase "View Appointments" as viewAppointments #C8E6C9
+        usecase "View Patient History" as viewPatientHistory #C8E6C9
+        usecase "Update Status\n(Confirm/Complete)" as updateStatus #C8E6C9
+        usecase "View Calendar" as viewCalendar #C8E6C9
+        usecase "Handle Walk-in" as handleWalkIn #FFF9C4
+    }
 }
 
-' System use case
-cloud "External System" {
-  (Send SMS) as sendSMS
+' --- SYSTÈME EXTERNE ---
+rectangle "External Services" #F5F5F5 {
+    usecase "Send SMS API" as sendSMS #E0E0E0
 }
 
-' Patient relationships
-patient --> register
-patient --> login
-patient --> logout
+' --- RELATIONS ---
+
+' Authentification (Tous)
+patient -up-> register
+patient -up-> login
+doctor -up-> login
+assistant -up-> login
+
+' Patient Flow
 patient --> searchDoctors
-patient --> viewDoctorProfile
-patient --> viewSlots
 patient --> bookAppointment
 patient --> viewMyAppointments
 patient --> cancelAppointment
-patient --> receiveReminder
 
-' Doctor relationships
-doctor --> login
-doctor --> logout
+' Relations logiques Patient
+searchDoctors ..> viewDoctorProfile : <<extend>>
+bookAppointment ..> viewSlots : <<include>>
+bookAppointment ..> receiveReminder : <<include>>
+receiveReminder ..> sendSMS : <<uses>>
+
+' Doctor Flow
 doctor --> manageSlots
 doctor --> viewAppointments
 doctor --> viewPatientHistory
 doctor --> updateStatus
 doctor --> viewCalendar
 
-' Assistant relationships
-assistant --> login
-assistant --> logout
-assistant --> managePatients
-assistant --> createAppointment
-assistant --> handleWalkIn
+' Assistant Flow
 assistant --> viewAppointments
-
-' Include relationships
-bookAppointment ..> viewSlots : <<include>>
-bookAppointment ..> receiveReminder : <<include>>
-searchDoctors ..> viewDoctorProfile : <<extend>>
-
-' System interactions
-receiveReminder ..> sendSMS : <<uses>>
-
-' Notes
-note right of patient
-  Patients can search for doctors,
-  book appointments, and receive
-  automatic SMS reminders
-end note
-
-note right of doctor
-  Doctors manage their schedule,
-  view appointments, and track
-  patient medical history
-end note
-
-note right of assistant
-  Assistants help doctors by
-  managing appointments and
-  handling administrative tasks
-end note
+assistant --> handleWalkIn
+assistant --> updateStatus
 
 @enduml

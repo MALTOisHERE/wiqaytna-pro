@@ -55,4 +55,4 @@ Thumbs.db
 *.tmp
 *.temp
 
-nul
+package-lock.json

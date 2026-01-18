@@ -1,6 +1,8 @@
 package com.wiqaytna.service;
 
 import com.wiqaytna.dto.DoctorDTO;
+import com.wiqaytna.exception.DuplicateResourceException;
+import com.wiqaytna.exception.ResourceNotFoundException;
 import com.wiqaytna.model.Doctor;
 import com.wiqaytna.model.User;
 import com.wiqaytna.repository.DoctorRepository;
@@ -36,7 +38,7 @@ public class DoctorService {
      */
     public DoctorDTO getDoctorById(Long id) {
         Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor", "id", id));
         return mapToDTO(doctor);
     }
 
@@ -45,7 +47,7 @@ public class DoctorService {
      */
     public DoctorDTO getDoctorByUserId(Long userId) {
         Doctor doctor = doctorRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Doctor not found for user"));
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor", "userId", userId));
         return mapToDTO(doctor);
     }
 
@@ -75,12 +77,40 @@ public class DoctorService {
         doctorRepository.findByLicenseNumber(doctor.getLicenseNumber())
                 .ifPresent(existing -> {
                     if (!existing.getId().equals(doctor.getId())) {
-                        throw new RuntimeException("License number already exists");
+                        throw new DuplicateResourceException("Doctor", "licenseNumber", doctor.getLicenseNumber());
                     }
                 });
 
         Doctor savedDoctor = doctorRepository.save(doctor);
         return mapToDTO(savedDoctor);
+    }
+
+    /**
+     * Update doctor profile
+     */
+    public DoctorDTO updateDoctor(Long id, DoctorDTO doctorDTO) {
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor", "id", id));
+
+        // Update doctor fields
+        if (doctorDTO.getSpecialization() != null) {
+            doctor.setSpecialization(doctorDTO.getSpecialization());
+        }
+        if (doctorDTO.getCabinetAddress() != null) {
+            doctor.setCabinetAddress(doctorDTO.getCabinetAddress());
+        }
+        if (doctorDTO.getBio() != null) {
+            doctor.setBio(doctorDTO.getBio());
+        }
+        if (doctorDTO.getConsultationFee() != null) {
+            doctor.setConsultationFee(doctorDTO.getConsultationFee());
+        }
+        if (doctorDTO.getYearsOfExperience() != null) {
+            doctor.setYearsOfExperience(doctorDTO.getYearsOfExperience());
+        }
+
+        Doctor updatedDoctor = doctorRepository.save(doctor);
+        return mapToDTO(updatedDoctor);
     }
 
     /**

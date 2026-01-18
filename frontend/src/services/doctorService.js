@@ -48,6 +48,14 @@ const doctorService = {
     });
     return response.data;
   },
+
+  /**
+   * Update doctor profile
+   */
+  updateDoctor: async (id, doctorData) => {
+    const response = await api.put(`/doctors/${id}`, doctorData);
+    return response.data;
+  },
 };
 
 export default doctorService;

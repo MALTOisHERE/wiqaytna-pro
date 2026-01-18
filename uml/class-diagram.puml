@@ -1,264 +1,99 @@
-@startuml Wiqaytna_Pro_Class_Diagram
-!theme plain
-title Wiqaytna Pro - Class Diagram
+@startuml Wiqaytna_Pro_Simple_Colored
+' --- STYLE ET CONFIGURATION ---
+skinparam backgroundColor white
+skinparam handwritten false
+skinparam shadow true
+skinparam roundCorner 10
 
-' Enumerations
-enum UserRole {
-  DOCTOR
-  PATIENT
-  ASSISTANT
+' Masquer les détails pour simplifier
+hide methods
+hide attributes
+hide circle
+
+' Palette de couleurs
+skinparam package {
+    BackgroundColor #F9F9F9
+    BorderColor #666666
+    FontColor #333333
 }
 
-enum AppointmentStatus {
-  SCHEDULED
-  CONFIRMED
-  CANCELLED
-  COMPLETED
-  NO_SHOW
+skinparam class {
+    HeaderBackgroundColor #2C3E50
+    BackgroundColor white
+    BorderColor #2C3E50
+    ArrowColor #2C3E50
+    FontColor #333333
+    FontSize 13
 }
 
-' Base User class
-class User {
-  - id: Long
-  - email: String
-  - password: String
-  - role: UserRole
-  - firstName: String
-  - lastName: String
-  - phone: String
-  - createdAt: Timestamp
-  - updatedAt: Timestamp
-  - isActive: Boolean
-  __
-  + register(): void
-  + login(): String
-  + logout(): void
-  + updateProfile(): void
+title Wiqaytna Pro - Architecture Globale
+
+' --- 1. DOMAIN ENTITIES (Le Cœur) ---
+package "1. Entités (Données)" {
+    class User #E3F2FD
+    class Doctor #E3F2FD
+    class Patient #E3F2FD
+    class Appointment #E3F2FD
+    class TimeSlot #E3F2FD
+    
+    enum UserRole #E1BEE7
+    enum AppointmentStatus #E1BEE7
 }
 
-' Doctor class
-class Doctor {
-  - id: Long
-  - userId: Long
-  - specialization: String
-  - licenseNumber: String
-  - cabinetAddress: String
-  - bio: String
-  - consultationFee: Decimal
-  - yearsOfExperience: Integer
-  - createdAt: Timestamp
-  __
-  + getAvailability(): List<TimeSlot>
-  + addTimeSlot(TimeSlot): void
-  + removeTimeSlot(Long): void
-  + getAppointments(): List<Appointment>
-  + updateAppointmentStatus(Long, Status): void
+' --- 2. SERVICES (La Logique) ---
+package "2. Services (Logique Métier)" {
+    class UserService #F0F4C3
+    class DoctorService #F0F4C3
+    class PatientService #F0F4C3
+    class AppointmentService #F0F4C3
+    class TimeSlotService #F0F4C3
 }
 
-' Patient class
-class Patient {
-  - id: Long
-  - userId: Long
-  - dateOfBirth: Date
-  - medicalHistory: String
-  - bloodGroup: String
-  - allergies: String
-  - createdAt: Timestamp
-  __
-  + searchDoctors(String): List<Doctor>
-  + bookAppointment(Long, Date, Time): Appointment
-  + getMyAppointments(): List<Appointment>
-  + cancelAppointment(Long): void
-  + getMedicalHistory(): String
+' --- 3. REPOSITORIES (La Base de données) ---
+package "3. Repositories (Persistance)" {
+    interface UserRepository #FFF9C4
+    interface DoctorRepository #FFF9C4
+    interface PatientRepository #FFF9C4
+    interface AppointmentRepository #FFF9C4
+    interface TimeSlotRepository #FFF9C4
 }
 
-' TimeSlot class
-class TimeSlot {
-  - id: Long
-  - doctorId: Long
-  - dayOfWeek: Integer
-  - startTime: Time
-  - endTime: Time
-  - isAvailable: Boolean
-  - createdAt: Timestamp
-  __
-  + isAvailable(): Boolean
-  + setAvailability(Boolean): void
-  + overlaps(TimeSlot): Boolean
-}
+' --- RELATIONS ENTRE ENTITÉS ---
+User "1" *-- "0..1" Doctor : Profile
+User "1" *-- "0..1" Patient : Profile
+User -up- UserRole
 
-' Appointment class
-class Appointment {
-  - id: Long
-  - doctorId: Long
-  - patientId: Long
-  - appointmentDate: Date
-  - appointmentTime: Time
-  - status: AppointmentStatus
-  - notes: String
-  - reminderSent: Boolean
-  - createdAt: Timestamp
-  - updatedAt: Timestamp
-  - createdBy: Long
-  __
-  + schedule(): void
-  + confirm(): void
-  + cancel(): void
-  + complete(): void
-  + sendReminder(): void
-  + updateNotes(String): void
-}
+Doctor "1" -- "*" TimeSlot
+Doctor "1" -- "*" Appointment
 
-' Service layer classes
-class UserService {
-  + register(UserDTO): User
-  + authenticate(String, String): String
-  + getUserByEmail(String): User
-  + updateUser(Long, UserDTO): User
-  + deleteUser(Long): void
-}
+Patient "1" -- "*" Appointment
+Appointment -up- AppointmentStatus
 
-class DoctorService {
-  + createDoctor(DoctorDTO): Doctor
-  + getDoctorById(Long): Doctor
-  + searchDoctors(String): List<Doctor>
-  + updateDoctor(Long, DoctorDTO): Doctor
-  + getDoctorTimeSlots(Long): List<TimeSlot>
-}
+' --- RELATIONS ARCHITECTURE (Service -> Repository -> Entity) ---
 
-class PatientService {
-  + createPatient(PatientDTO): Patient
-  + getPatientById(Long): Patient
-  + updatePatient(Long, PatientDTO): Patient
-  + getPatientAppointments(Long): List<Appointment>
-}
+' UserService gère User via UserRepository
+UserService ..> User
+UserService ..> UserRepository
+UserRepository ..> User
 
-class AppointmentService {
-  + createAppointment(AppointmentDTO): Appointment
-  + getAppointmentById(Long): Appointment
-  + updateAppointmentStatus(Long, Status): Appointment
-  + cancelAppointment(Long): void
-  + getDoctorAppointments(Long, Date): List<Appointment>
-  + sendReminders(): void
-}
+' DoctorService gère Doctor via DoctorRepository
+DoctorService ..> Doctor
+DoctorService ..> DoctorRepository
+DoctorRepository ..> Doctor
 
-class TimeSlotService {
-  + createTimeSlot(TimeSlotDTO): TimeSlot
-  + getAvailableSlots(Long, Integer): List<TimeSlot>
-  + updateTimeSlot(Long, TimeSlotDTO): TimeSlot
-  + deleteTimeSlot(Long): void
-}
+' PatientService gère Patient via PatientRepository
+PatientService ..> Patient
+PatientService ..> PatientRepository
+PatientRepository ..> Patient
 
-' Repository layer classes
-interface UserRepository {
-  + findById(Long): Optional<User>
-  + findByEmail(String): Optional<User>
-  + save(User): User
-  + deleteById(Long): void
-}
+' AppointmentService gère Appointment via AppointmentRepository
+AppointmentService ..> Appointment
+AppointmentService ..> AppointmentRepository
+AppointmentRepository ..> Appointment
 
-interface DoctorRepository {
-  + findById(Long): Optional<Doctor>
-  + findBySpecialization(String): List<Doctor>
-  + findByUserId(Long): Optional<Doctor>
-  + save(Doctor): Doctor
-}
-
-interface PatientRepository {
-  + findById(Long): Optional<Patient>
-  + findByUserId(Long): Optional<Patient>
-  + save(Patient): Patient
-}
-
-interface AppointmentRepository {
-  + findById(Long): Optional<Appointment>
-  + findByDoctorId(Long): List<Appointment>
-  + findByPatientId(Long): List<Appointment>
-  + findByDoctorIdAndDate(Long, Date): List<Appointment>
-  + save(Appointment): Appointment
-}
-
-interface TimeSlotRepository {
-  + findById(Long): Optional<TimeSlot>
-  + findByDoctorId(Long): List<TimeSlot>
-  + findByDoctorIdAndDayOfWeek(Long, Integer): List<TimeSlot>
-  + save(TimeSlot): TimeSlot
-  + deleteById(Long): void
-}
-
-' Relationships
-
-' User composition relationships
-User "1" o-- "0..1" Doctor : has profile >
-User "1" o-- "0..1" Patient : has profile >
-
-' User with UserRole
-User -- UserRole : uses >
-
-' Doctor relationships
-Doctor "1" -- "*" TimeSlot : defines >
-Doctor "1" -- "*" Appointment : receives >
-
-' Patient relationships
-Patient "1" -- "*" Appointment : books >
-
-' Appointment relationships
-Appointment -- AppointmentStatus : has >
-Appointment "*" -- "1" Doctor : scheduled with >
-Appointment "*" -- "1" Patient : booked by >
-
-' Service to Entity relationships
-UserService ..> User : manages >
-DoctorService ..> Doctor : manages >
-PatientService ..> Patient : manages >
-AppointmentService ..> Appointment : manages >
-TimeSlotService ..> TimeSlot : manages >
-
-' Service to Repository relationships (Dependency Injection)
-UserService ..> UserRepository : uses >
-DoctorService ..> DoctorRepository : uses >
-PatientService ..> PatientRepository : uses >
-AppointmentService ..> AppointmentRepository : uses >
-TimeSlotService ..> TimeSlotRepository : uses >
-
-' Repository to Entity relationships
-UserRepository ..> User : persists >
-DoctorRepository ..> Doctor : persists >
-PatientRepository ..> Patient : persists >
-AppointmentRepository ..> Appointment : persists >
-TimeSlotRepository ..> TimeSlot : persists >
-
-note top of User
-  Base class for all user types.
-  Role determines if user is
-  Doctor, Patient, or Assistant
-end note
-
-note top of Doctor
-  Doctors can manage their schedule
-  and view appointments
-end note
-
-note top of Patient
-  Patients can book appointments
-  and view medical history
-end note
-
-note top of Appointment
-  Core entity linking doctors
-  and patients with scheduling info
-end note
-
-note right of UserService
-  Service layer implements
-  business logic following
-  SOLID principles
-end note
-
-note right of UserRepository
-  Repository layer handles
-  data persistence using
-  JPA/Hibernate
-end note
+' TimeSlotService gère TimeSlot via TimeSlotRepository
+TimeSlotService ..> TimeSlot
+TimeSlotService ..> TimeSlotRepository
+TimeSlotRepository ..> TimeSlot
 
 @enduml

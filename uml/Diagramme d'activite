@@ -1,0 +1,105 @@
+@startuml Wiqaytna_Pro_Gen_Detailed
+skinparam backgroundColor white
+skinparam shadow false
+
+title diagramme d'activite
+
+' Styles
+skinparam activity {
+    BackgroundColor white
+    BorderColor #333333
+    FontName Arial
+    FontSize 12
+}
+skinparam note {
+    BackgroundColor #FEF9E7
+    BorderColor #D4AC0D
+}
+
+' Légende
+legend right
+    | Couleur | Rôle |
+    | <#E3F2FD> | Docteur (Action) |
+    | <#E8F5E9> | Système (Logique) |
+    | <#FFFDE7> | Base de Données |
+endlegend
+
+start
+
+partition "1. Configuration (Docteur)" #E3F2FD {
+    :Ouvrir l'outil de génération;
+    :Configurer les paramètres;
+    note right
+      - Période: 01/02 au 28/02
+      - Horaires: 09:00 à 17:00
+      - Durée: 30 min
+      - **Pause déj: 12:00 à 14:00**
+      - **Exclure: Samedi & Dimanche**
+    end note
+    :Lancer la génération;
+}
+
+partition "2. Validation & Initialisation (Système)" #E8F5E9 {
+    if (Date Début > Date Fin ?) then (Oui)
+        :Afficher erreur "Dates invalides";
+        stop
+    else (Non)
+        :Récupérer les créneaux existants\n(Pour éviter les doublons);
+        :Initialiser une liste vide "NouveauxCréneaux";
+    endif
+}
+
+partition "3. Boucle de Traitement (Algorithme)" #E8F5E9 {
+    
+    while (Date < Date Fin ?) is (Oui)
+    
+        if (Est-ce un Weekend ?) then (Oui)
+            :Ignorer ce jour;
+        else (Non (Jour ouvré))
+            :Initialiser Heure = Heure Début (09:00);
+            
+            while (Heure < Heure Fin ?) is (Oui)
+                
+                group "Vérifications Métier"
+                    if (Est-ce l'heure de la pause ?) then (Oui)
+                        :Sauter ce créneau;
+                    elseif (Existe-t-il déjà un créneau ici ?) then (Oui)
+                        :Ignorer (Conflit détecté);
+                    else (Non)
+                        :Créer l'objet TimeSlot\n(Status = DISPONIBLE);
+                        :Ajouter à la liste "NouveauxCréneaux";
+                    endif
+                end group
+                
+                :Heure = Heure + Durée (30min);
+            endwhile (Fin de la journée)
+            
+        endif
+        
+        :Date = Date + 1 jour;
+    endwhile (Fin de la période)
+}
+
+partition "4. Persistance (Base de Données)" #FFFDE7 {
+    if (Liste "NouveauxCréneaux" est vide ?) then (Oui)
+        :Ne rien faire;
+    else (Non)
+        :Exécuter Batch Insert;
+        note right
+            INSERT INTO time_slots VALUES (...), (...), (...)
+            (Optimisation pour performance)
+        end note
+    endif
+}
+
+partition "5. Finalisation" #E3F2FD {
+    :Afficher le rapport;
+    note right
+      "Succès : 140 créneaux créés.
+      12 ignorés (déjà existants)."
+    end note
+}
+
+stop
+
+@enduml

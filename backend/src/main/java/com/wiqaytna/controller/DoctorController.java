@@ -77,4 +77,18 @@ public class DoctorController {
         List<DoctorDTO> doctors = doctorService.getDoctorsBySpecialization(name);
         return ResponseEntity.ok(doctors);
     }
+
+    /**
+     * Update doctor profile
+     * PUT /api/doctors/{id}
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateDoctor(@PathVariable Long id, @RequestBody DoctorDTO doctorDTO) {
+        try {
+            DoctorDTO updatedDoctor = doctorService.updateDoctor(id, doctorDTO);
+            return ResponseEntity.ok(updatedDoctor);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

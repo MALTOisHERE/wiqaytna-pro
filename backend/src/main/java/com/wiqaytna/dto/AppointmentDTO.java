@@ -22,9 +22,13 @@ public class AppointmentDTO {
     private Long patientId;
     private String patientName;
     private String patientPhone;
+    private String patientBloodGroup;
+    private String patientAllergies;
+    private String patientMedicalHistory;
     private LocalDate appointmentDate;
     private LocalTime appointmentTime;
     private AppointmentStatus status;
     private String notes;
     private Boolean reminderSent;
+    private String cancelledBy; // "PATIENT" or "DOCTOR"
 }
