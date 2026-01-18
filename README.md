@@ -3,13 +3,11 @@
 ## Team Information
 
 **Project**: Wiqaytna Pro - Gestion des Rendez-vous Médicaux
-**Institution**: INPT
+**Institution**: --
 **Academic Year**: 2025-2026
 
 **Team Members**:
-- **Name**: Aitouaarab Fatimazahra 
-            Sajiaa Hafssa
-            Chablou Amina
+- **Name**: --
 
 
 ---
