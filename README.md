@@ -1,7 +1,5 @@
 # Wiqaytna Pro - Medical Appointment Management Platform
 
----
-
 ## Table of Contents
 
 1. [Project Description](#project-description)
@@ -632,5 +630,6 @@ Before deploying to production:
 8. Calendar synchronization (Google Calendar)
 9. Advanced scheduling (recurring appointments)
 10. Analytics dashboard for doctors
+
 
 
